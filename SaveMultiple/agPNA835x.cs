@@ -1,7 +1,6 @@
 ﻿using AgilentPNA835x;
 using System;
 using System.Collections.Generic;
-using static System.Runtime.CompilerServices.RuntimeHelpers;
 
 namespace MWComLibCS.Exclusive
 {
@@ -78,7 +77,7 @@ namespace MWComLibCS.Exclusive
         {
             uint win = getWindowCatalog(sheetID)[0];
             uint tra = getTraceCatalog()[0];
-            getSCPIcommand("DISP:WIND" + win + ":TRAC" + tra + ":SEL");
+            selectTrace(win, tra);
         }
 
         /// <summary>Get Trace Catalog</summary>
@@ -145,6 +144,21 @@ namespace MWComLibCS.Exclusive
             return port.ToArray();
         }
 
+        public void selectTrace(uint winNum,uint traceNum)
+        {
+            getSCPIcommand("DISP:WIND" + winNum + ":TRAC" + traceNum + ":SEL");
+        }
+
+        public uint getSelectChannel()
+        {
+            return uint.Parse(getSCPIcommand("SYST:ACT:CHAN?"));
+        }
+
+        public uint getSelectMeasurementNumber()
+        {
+            return uint.Parse(getSCPIcommand("SYST:ACT:MEAS:NUMB?"));
+        }
+
         public bool deleteFile(string filePATH, out string ErrorMessage)
         {
             getSCPIcommand("DISP:CCL");    //Display Error clear
@@ -188,7 +202,6 @@ namespace MWComLibCS.Exclusive
             foreach (uint i in ports) { portBF += "," + i.ToString(); }
             return saveSNP(ch,filePATH,portBF.Trim(','), out ErrorMessage);
         }
-
 
         public bool saveSNP(uint ch, string filePATH, string ports, out string ErrorMessage)
         {

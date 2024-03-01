@@ -37,26 +37,27 @@
             this.rbSELECT = new System.Windows.Forms.RadioButton();
             this.rbALL = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.gbSelPort = new System.Windows.Forms.GroupBox();
+            this.btCLEAR = new System.Windows.Forms.Button();
+            this.btALL = new System.Windows.Forms.Button();
+            this.clbPT = new System.Windows.Forms.CheckedListBox();
             this.ddlCH = new System.Windows.Forms.ComboBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.cbSING = new System.Windows.Forms.CheckBox();
             this.btCANCEL = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.tbFT = new System.Windows.Forms.TextBox();
-            this.clbPT = new System.Windows.Forms.CheckedListBox();
-            this.gbSelPort = new System.Windows.Forms.GroupBox();
-            this.btALL = new System.Windows.Forms.Button();
-            this.btCLEAR = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.gbSelPort.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // btSAVE
             // 
             this.btSAVE.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btSAVE.Location = new System.Drawing.Point(195, 310);
+            this.btSAVE.Location = new System.Drawing.Point(200, 310);
             this.btSAVE.Name = "btSAVE";
             this.btSAVE.Size = new System.Drawing.Size(75, 23);
             this.btSAVE.TabIndex = 0;
@@ -151,6 +152,48 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Save target";
             // 
+            // gbSelPort
+            // 
+            this.gbSelPort.Controls.Add(this.btCLEAR);
+            this.gbSelPort.Controls.Add(this.btALL);
+            this.gbSelPort.Controls.Add(this.clbPT);
+            this.gbSelPort.Location = new System.Drawing.Point(9, 45);
+            this.gbSelPort.Name = "gbSelPort";
+            this.gbSelPort.Size = new System.Drawing.Size(170, 200);
+            this.gbSelPort.TabIndex = 4;
+            this.gbSelPort.TabStop = false;
+            this.gbSelPort.Text = "Select Port";
+            // 
+            // btCLEAR
+            // 
+            this.btCLEAR.Location = new System.Drawing.Point(89, 171);
+            this.btCLEAR.Name = "btCLEAR";
+            this.btCLEAR.Size = new System.Drawing.Size(75, 23);
+            this.btCLEAR.TabIndex = 13;
+            this.btCLEAR.Text = "Clear";
+            this.btCLEAR.UseVisualStyleBackColor = true;
+            this.btCLEAR.Click += new System.EventHandler(this.btCLEAR_Click);
+            // 
+            // btALL
+            // 
+            this.btALL.Location = new System.Drawing.Point(6, 171);
+            this.btALL.Name = "btALL";
+            this.btALL.Size = new System.Drawing.Size(75, 23);
+            this.btALL.TabIndex = 12;
+            this.btALL.Text = "ALL Check";
+            this.btALL.UseVisualStyleBackColor = true;
+            this.btALL.Click += new System.EventHandler(this.btALL_Click);
+            // 
+            // clbPT
+            // 
+            this.clbPT.CheckOnClick = true;
+            this.clbPT.FormattingEnabled = true;
+            this.clbPT.Location = new System.Drawing.Point(6, 18);
+            this.clbPT.Name = "clbPT";
+            this.clbPT.Size = new System.Drawing.Size(157, 144);
+            this.clbPT.TabIndex = 11;
+            this.clbPT.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbPT_ItemCheck);
+            // 
             // ddlCH
             // 
             this.ddlCH.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -186,7 +229,7 @@
             // btCANCEL
             // 
             this.btCANCEL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btCANCEL.Location = new System.Drawing.Point(276, 310);
+            this.btCANCEL.Location = new System.Drawing.Point(279, 310);
             this.btCANCEL.Name = "btCANCEL";
             this.btCANCEL.Size = new System.Drawing.Size(75, 23);
             this.btCANCEL.TabIndex = 8;
@@ -211,53 +254,23 @@
             this.tbFT.TabIndex = 10;
             this.tbFT.TextChanged += new System.EventHandler(this.tbFT_TextChanged);
             // 
-            // clbPT
+            // label2
             // 
-            this.clbPT.CheckOnClick = true;
-            this.clbPT.FormattingEnabled = true;
-            this.clbPT.Location = new System.Drawing.Point(6, 18);
-            this.clbPT.Name = "clbPT";
-            this.clbPT.Size = new System.Drawing.Size(157, 144);
-            this.clbPT.TabIndex = 11;
-            this.clbPT.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.clbPT_ItemCheck);
-            // 
-            // gbSelPort
-            // 
-            this.gbSelPort.Controls.Add(this.btCLEAR);
-            this.gbSelPort.Controls.Add(this.btALL);
-            this.gbSelPort.Controls.Add(this.clbPT);
-            this.gbSelPort.Location = new System.Drawing.Point(9, 45);
-            this.gbSelPort.Name = "gbSelPort";
-            this.gbSelPort.Size = new System.Drawing.Size(170, 200);
-            this.gbSelPort.TabIndex = 4;
-            this.gbSelPort.TabStop = false;
-            this.gbSelPort.Text = "Select Port";
-            // 
-            // btALL
-            // 
-            this.btALL.Location = new System.Drawing.Point(6, 171);
-            this.btALL.Name = "btALL";
-            this.btALL.Size = new System.Drawing.Size(75, 23);
-            this.btALL.TabIndex = 12;
-            this.btALL.Text = "ALL Check";
-            this.btALL.UseVisualStyleBackColor = true;
-            this.btALL.Click += new System.EventHandler(this.btALL_Click);
-            // 
-            // btCLEAR
-            // 
-            this.btCLEAR.Location = new System.Drawing.Point(89, 171);
-            this.btCLEAR.Name = "btCLEAR";
-            this.btCLEAR.Size = new System.Drawing.Size(75, 23);
-            this.btCLEAR.TabIndex = 13;
-            this.btCLEAR.Text = "Clear";
-            this.btCLEAR.UseVisualStyleBackColor = true;
-            this.btCLEAR.Click += new System.EventHandler(this.btCLEAR_Click);
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(80, 340);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(195, 12);
+            this.label2.TabIndex = 11;
+            this.label2.Text = "Presented by Orient Microwave Corp.";
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(363, 345);
+            this.ClientSize = new System.Drawing.Size(366, 361);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.tbFT);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btCANCEL);
@@ -269,6 +282,8 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.ImeMode = System.Windows.Forms.ImeMode.Off;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "frmMain";
             this.Text = "Save Multiple";
             this.TopMost = true;
@@ -277,9 +292,9 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.gbSelPort.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            this.gbSelPort.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -305,6 +320,7 @@
         private System.Windows.Forms.GroupBox gbSelPort;
         private System.Windows.Forms.Button btCLEAR;
         private System.Windows.Forms.Button btALL;
+        private System.Windows.Forms.Label label2;
     }
 }
 
