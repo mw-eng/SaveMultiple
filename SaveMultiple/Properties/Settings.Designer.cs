@@ -37,7 +37,7 @@ namespace SaveMultiple.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool img {
             get {
                 return ((bool)(this["img"]));
@@ -92,6 +92,18 @@ namespace SaveMultiple.Properties {
             }
             set {
                 this["sing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("dat")]
+        public string title {
+            get {
+                return ((string)(this["title"]));
+            }
+            set {
+                this["title"] = value;
             }
         }
     }

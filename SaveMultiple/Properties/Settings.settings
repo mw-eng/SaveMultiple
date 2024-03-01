@@ -6,7 +6,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="img" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="snp" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -19,6 +19,9 @@
     </Setting>
     <Setting Name="sing" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="title" Type="System.String" Scope="User">
+      <Value Profile="(Default)">dat</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -1,23 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
-using AgilentPNA835x;
 using SaveMultiple.Properties;
-using System.Diagnostics.Eventing.Reader;
-using System.Configuration;
+using MWComLibCS.Exclusive;
+using static MWComLibCS.Exclusive.agPNA835x;
 
 namespace SaveMultiple
 {
     public partial class frmMain : Form
     {
-        private static IApplication app;
-        private static IScpiStringParser scpi;
+        private agPNA835x pna;
 
         public frmMain()
         {
@@ -26,17 +18,22 @@ namespace SaveMultiple
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+#if DEBUG
+            Settings.Default.Reset();
+#endif
             this.Text += " Ver," + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).ProductVersion;
+            pna = new agPNA835x();
 
-            Type typeFromProgID = Type.GetTypeFromProgID("AgilentPNA835x.Application");
-            app = (IApplication)Activator.CreateInstance(typeFromProgID);
-            scpi = app.ScpiStringParser;
-
-            foreach (uint i in getChannelCatalog())
+            foreach (uint i in pna.getChannelCatalog())
             {
                 ddlCH.Items.Add(i.ToString());
             }
             ddlCH.SelectedIndex = 0;
+            foreach(uint i in pna.getPortCatalog())
+            {
+                clbPT.Items.Add("Port" + i.ToString());
+            }
+            for(int i=0;i<clbPT.Items.Count; i++) { clbPT.SetItemChecked(i, true); }
 
             //Read Settings
             if (Settings.Default.ch) { rbALL.Checked = true; ddlCH.Enabled = false; }
@@ -45,6 +42,7 @@ namespace SaveMultiple
             if (Settings.Default.snp) { cbSNP.Checked = true; } else { cbSNP.Checked = false; }
             if (Settings.Default.trace) { cbTRACE.Checked = true; } else { cbTRACE.Checked = false; }
             if (Settings.Default.sing) { cbSING.Checked = true; } else { cbSING.Checked = false; }
+            if (Settings.Default.title != "") { tbFT.Text = Settings.Default.title; } else { tbFT.Text = "multipleDAT"; }
 
         }
 
@@ -65,23 +63,134 @@ namespace SaveMultiple
 
         private void btSAVE_Click(object sender, EventArgs e)
         {
-            List<string> trigMODE = new List<string>();
-
+            string dirPath;
+            List<SweepMode> trigMODE = new List<SweepMode>();
             uint[] channels;
-            if (rbALL.Checked) { channels = getChannelCatalog(); }
+            uint[] sheets;
+            bool fileFLG = false;
+            uint[] ports;
+            string filePath;
+            string message;
+
+            ports = new uint[clbPT.CheckedItems.Count];
+            for(int i = 0; i < clbPT.CheckedItems.Count; i++)
+            {
+                ports[i] = uint.Parse(clbPT.CheckedItems[i].ToString().Replace("Port",""));
+            }
+            //Select Folder Dialog
+            FolderBrowserDialog fbd = new FolderBrowserDialog();
+            fbd.Description = "Please Select Folder";
+            fbd.RootFolder = Environment.SpecialFolder.Desktop;
+            fbd.SelectedPath = Settings.Default.dir;
+            fbd.ShowNewFolderButton = true;
+            if (fbd.ShowDialog(this) == DialogResult.OK)
+            {
+                dirPath = fbd.SelectedPath;
+            }
+            else { return; }
+
+            //Get Channel Lists
+            if (rbALL.Checked) { channels = pna.getChannelCatalog(); }
             else { channels = new uint[] { uint.Parse(ddlCH.Text) }; }
+            //Get Sheet Lists
+            sheets = pna.getSheetsCatalog();
+
+            //File Check
+            if (cbIMG.Checked)
+            {
+                foreach(uint i in sheets)
+                {
+                    if (System.IO.File.Exists(dirPath + "\\" + tbFT.Text + "_Sheet" + i.ToString() + ".png")) { fileFLG = true; }
+                }
+            }
+            if (cbSNP.Checked)
+            {
+                foreach(uint ch in channels)
+                {
+                    if (System.IO.File.Exists(dirPath + "\\" + tbFT.Text + "_CH" + ch.ToString() + ".s" + ports.Length.ToString() + "p")) { fileFLG = true; }
+                }
+            }
+            if (cbTRACE.Checked)
+            {
+                if(System.IO.File.Exists(dirPath + "\\" + tbFT.Text + ".csv")) { fileFLG = true; }
+            }
+            if (fileFLG)
+            {
+                if(MessageBox.Show("The file exists in the specified folder.\nDo you want to overwrite?",
+                    "Warning",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning)==DialogResult.Cancel) return;
+            }
 
             //Trigger SET
             if (cbSING.Checked)
             {
                 foreach (uint i in channels)
                 {
-                    trigMODE.Add(getTriggerMode(i));
-                    trigSingle(i);
+                    trigMODE.Add(pna.getTriggerMode(i));
+                    pna.trigSingle(i);
                 }
             }
 
+
             //Save Screen
+            if (cbIMG.Checked)
+            {
+                foreach (uint i in sheets)
+                {
+                    filePath = dirPath + "\\" + tbFT.Text + "_Sheet" + i.ToString() + ".png";
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        if (!pna.deleteFile(filePath, out message))
+                        {
+                            if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR", 
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error)
+                                == DialogResult.Yes) { this.Close(); }
+                            else { return; }
+                        }
+                    }
+                    pna.selectSheet(i);
+                    if (!pna.saveScreen(filePath, out message))
+                    {
+                        if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Error)
+                            == DialogResult.Yes) { this.Close(); }
+                        else { return; }
+                    }
+                }
+            }
+
+
+            //Save SnP
+            if (cbSNP.Checked)
+            {
+                foreach (uint ch in channels)
+                {
+                    filePath = dirPath + "\\" + tbFT.Text + "_CH" + ch.ToString() + ".s" + ports.Length.ToString() + "p";
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        if (!pna.deleteFile(filePath, out message))
+                        {
+                            if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
+                                MessageBoxButtons.YesNo, MessageBoxIcon.Error)
+                                == DialogResult.Yes) { this.Close(); }
+                            else { return; }
+                        }
+                    }
+                    if (!pna.saveSNP(ch, filePath,ports, out message))
+                    {
+                        if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
+                            MessageBoxButtons.YesNo, MessageBoxIcon.Error)
+                            == DialogResult.Yes) { this.Close(); }
+                        else { return; }
+                    }
+                }
+            }
+
+
+            //Save Trace
+            if (cbTRACE.Checked)
+            {
+                filePath = dirPath + "\\" + tbFT.Text + ".csv";
+            }
 
 
             //End processing
@@ -89,7 +198,7 @@ namespace SaveMultiple
             {
                 for(int i = 0; i < channels.Length; i++)
                 {
-                    SettriggerMode(channels[i], trigMODE[i]);
+                    pna.SettriggerMode(channels[i], trigMODE[i]);
                 }
             }
             Settings.Default.ch = rbALL.Checked;
@@ -97,92 +206,67 @@ namespace SaveMultiple
             Settings.Default.snp = cbSNP.Checked;
             Settings.Default.trace = cbTRACE.Checked;
             Settings.Default.sing = cbSING.Checked;
+            Settings.Default.title = tbFT.Text;
+            Settings.Default.dir = dirPath;
             Settings.Default.Save();
             this.Close();
         }
 
-        #region private functions
 
-        private string getTriggerMode(uint ch) { return getSCPIcommand("SENS" + ch.ToString() + ":SWE:MODE?"); }
-
-        private void trigSingle(uint ch) { SettriggerMode(ch, "SING"); }
-        private void trigHold(uint ch) { SettriggerMode(ch, "HOLD"); }
-        private void trigContinuous(uint ch) { SettriggerMode(ch, "CONT"); }
-
-        private void SettriggerMode(uint ch, string trig)
+        #region GUI Events
+        private void cbIMG_CheckedChanged(object sender, EventArgs e)
         {
-            getSCPIcommand("SENS" + ch.ToString() + ":SWE:MODE " + trig);
-            getSCPIcommand("*OPC?");
+            btSAVE.Enabled = enabSaveButton();
         }
 
-        /// <summary>Select Sheet</summary>
-        /// <param name="sheetID">Sheet ID</param>
-        private void selectSheet(uint sheetID)
+        private void cbSNP_CheckedChanged(object sender, EventArgs e)
         {
-            uint win = getWindowCatalog(sheetID)[0];
-            uint tra = getTraceCatalog()[0];
-            getSCPIcommand("DISP:WIND" + win + ":TRAC" + tra + ":SEL");
+            btSAVE.Enabled = enabSaveButton();
+            if (cbSNP.Checked)
+            {
+                if(clbPT.CheckedItems.Count == 0) { btSAVE.Enabled = false; }
+                clbPT.Enabled = true;
+            }
+            else { clbPT.Enabled = false; }
         }
 
-
-
-        public uint[] getTraceCatalog() { return getTraceCatalog(0); }
-
-        public uint[] getTraceCatalog(uint WindowID)
+        private void cbTRACE_CheckedChanged(object sender, EventArgs e)
         {
-            List<uint> trace = new List<uint>();
-            string[] arrBF;
-            if (WindowID <= 0) { arrBF = getSCPIcommand("DISP:WIND:CAT?").Split(','); }
-            else { arrBF = getSCPIcommand("DISP:WIND" + WindowID.ToString() + ":CAT?").Split(','); }
-            foreach (string strBf in arrBF) { trace.Add(uint.Parse(strBf)); }
-            return trace.ToArray();
+            btSAVE.Enabled = enabSaveButton();
         }
 
-        /// <summary>Get Window Catalog</summary>
-        /// <returns>Window List</returns>
-        public uint[] getWindowCatalog() { return getWindowCatalog(0); }
-
-        /// <summary>Get Window Catalog</summary>
-        /// <param name="sheetID">Sheet ID</param>
-        /// <returns>Window List</returns>
-        public uint[] getWindowCatalog(uint sheetID)
+        private void tbFT_TextChanged(object sender, EventArgs e)
         {
-            List<uint> win = new List<uint>();
-            string[] arrBF;
-            if (sheetID <= 0) { arrBF = getSCPIcommand("DISP:SHE:CAT?").Split(','); }
-            else { arrBF = getSCPIcommand("DISP:SHE" + sheetID.ToString() + ":CAT?").Split(','); }
-            foreach (string strBf in arrBF) { win.Add(uint.Parse(strBf)); }
-            return win.ToArray();
+            btSAVE.Enabled = enabSaveButton();
         }
 
-        /// <summary>Get Sheet Catalog</summary>
-        /// <returns>sheet list</returns>
-        private uint[] getSheetsCatalog()
+        private void tbPT_TextChanged(object sender, EventArgs e)
         {
-            List<uint> sh = new List<uint>();
-            string[] arrBF = getSCPIcommand("SYST:SHE:CAT?").Split(',');
-            foreach (string strBf in arrBF) { sh.Add(uint.Parse(strBf)); }
-            return sh.ToArray();
+            btSAVE.Enabled = enabSaveButton();
         }
 
-        /// <summary>Get Channel Catalog</summary>
-        /// <returns>channel catalog</returns>
-        private uint[] getChannelCatalog()
+        private void clbPT_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            List<uint> ch = new List<uint>();
-            string[] arrBF = getSCPIcommand("SYST:CHAN:CAT?").Split(',');
-            foreach (string strBf in arrBF) { ch.Add(uint.Parse(strBf)); }
-            return ch.ToArray();
+            btSAVE.Enabled = enabSaveButton();
+            if (e.CurrentValue == CheckState.Checked && clbPT.CheckedItems.Count == 1) { btSAVE.Enabled = false; }
+            else { btSAVE.Enabled = true; }
         }
 
-        /// <summary>Get SCPI Command</summary>
-        /// <param name="cmd">Command line</param>
-        /// <returns>Command results</returns>
-        private string getSCPIcommand(string cmd)
+        private void btALL_Click(object sender, EventArgs e)
         {
-            return scpi.Parse(cmd).Trim('\n').Trim('\"');
+            for (int i = 0; i < clbPT.Items.Count; i++) { clbPT.SetItemChecked(i, true); }
         }
 
+        private void btCLEAR_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < clbPT.Items.Count; i++) { clbPT.SetItemChecked(i, false); }
+        }
+
+        private bool enabSaveButton()
+        {
+            if ((!cbIMG.Checked && (!cbSNP.Checked || (cbSNP.Checked && clbPT.CheckedItems.Count == 0)) && !cbTRACE.Checked) || tbFT.Text == "") { return false; }
+            else { return true; }
+        }
         #endregion
     }
 }
