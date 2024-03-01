@@ -163,7 +163,10 @@ namespace MWComLibCS.Exclusive
         {
             getSCPIcommand("DISP:CCL");    //Display Error clear
             getSCPIcommand("*CLS");         //status register clear
-            getSCPIcommand("MMEM:DEL \"" + filePATH + "\"");   //delete file
+            try
+            {
+                getSCPIcommand("MMEM:DEL \"" + filePATH + "\"");   //delete file
+            }catch(Exception e){ ErrorMessage = e.Message; return false; }
             string strBF = getSCPIcommand("SYST:ERR?"); //Error check
             string[] strArr = strBF.Split(',');
             if (int.Parse(strArr[0]) != 0)

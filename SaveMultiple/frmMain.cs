@@ -66,6 +66,7 @@ namespace SaveMultiple
 
         private void btSAVE_Click(object sender, EventArgs e)
         {
+            this.Hide();
             string dirPath;
             List<SweepMode> trigMODE = new List<SweepMode>();
             uint[] channels;
@@ -90,7 +91,7 @@ namespace SaveMultiple
             {
                 dirPath = fbd.SelectedPath;
             }
-            else { return; }
+            else { this.Show(); return; }
 
             //Get Channel Lists
             if (rbALL.Checked) { channels = pna.getChannelCatalog(); }
@@ -122,8 +123,8 @@ namespace SaveMultiple
             }
             if (fileFLG)
             {
-                if(MessageBox.Show("The file exists in the specified folder.\nDo you want to overwrite?",
-                    "Warning",MessageBoxButtons.OKCancel,MessageBoxIcon.Warning)==DialogResult.Cancel) return;
+                if (MessageBox.Show("The file exists in the specified folder.\nDo you want to overwrite?",
+                    "Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning) == DialogResult.Cancel) { this.Show(); return; }
             }
 
             //Trigger SET
@@ -139,26 +140,40 @@ namespace SaveMultiple
             //Save Screen
             if (cbIMG.Checked)
             {
-                foreach (uint i in sheets)
+                foreach (uint sh in sheets)
                 {
-                    filePath = dirPath + "\\" + tbFT.Text + "_Sheet" + i.ToString() + ".png";
+                    filePath = dirPath + "\\" + tbFT.Text + "_Sheet" + sh.ToString() + ".png";
                     if (System.IO.File.Exists(filePath))
                     {
                         if (!pna.deleteFile(filePath, out message))
                         {
+                            if (cbSING.Checked)
+                            {
+                                for (int i = 0; i < channels.Length; i++)
+                                {
+                                    pna.SettriggerMode(channels[i], trigMODE[i]);
+                                }
+                            }
                             if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR", 
                                 MessageBoxButtons.YesNo, MessageBoxIcon.Error)
-                                == DialogResult.Yes) { this.Close(); }
-                            else { return; }
+                                == DialogResult.Yes) { this.Close(); return; }
+                            else { this.Show(); return; }
                         }
                     }
-                    pna.selectSheet(i);
+                    pna.selectSheet(sh);
                     if (!pna.saveScreen(filePath, out message))
                     {
+                        if (cbSING.Checked)
+                        {
+                            for (int i = 0; i < channels.Length; i++)
+                            {
+                                pna.SettriggerMode(channels[i], trigMODE[i]);
+                            }
+                        }
                         if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Error)
-                            == DialogResult.Yes) { this.Close(); }
-                        else { return; }
+                            == DialogResult.Yes) { this.Close(); return; }
+                        else { this.Show(); return; }
                     }
                 }
             }
@@ -173,18 +188,32 @@ namespace SaveMultiple
                     {
                         if (!pna.deleteFile(filePath, out message))
                         {
+                            if (cbSING.Checked)
+                            {
+                                for (int i = 0; i < channels.Length; i++)
+                                {
+                                    pna.SettriggerMode(channels[i], trigMODE[i]);
+                                }
+                            }
                             if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
                                 MessageBoxButtons.YesNo, MessageBoxIcon.Error)
-                                == DialogResult.Yes) { this.Close(); }
-                            else { return; }
+                                == DialogResult.Yes) { this.Close(); return; }
+                            else { this.Show(); return; }
                         }
                     }
                     if (!pna.saveSNP(ch, filePath,ports, out message))
                     {
+                        if (cbSING.Checked)
+                        {
+                            for (int i = 0; i < channels.Length; i++)
+                            {
+                                pna.SettriggerMode(channels[i], trigMODE[i]);
+                            }
+                        }
                         if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Error)
-                            == DialogResult.Yes) { this.Close(); }
-                        else { return; }
+                            == DialogResult.Yes) { this.Close(); return; }
+                        else { this.Show(); return; }
                     }
                 }
             }
@@ -199,10 +228,17 @@ namespace SaveMultiple
                     {
                         if (!pna.deleteFile(filePath, out message))
                         {
+                            if (cbSING.Checked)
+                            {
+                                for (int i = 0; i < channels.Length; i++)
+                                {
+                                    pna.SettriggerMode(channels[i], trigMODE[i]);
+                                }
+                            }
                             if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
                                 MessageBoxButtons.YesNo, MessageBoxIcon.Error)
-                                == DialogResult.Yes) { this.Close(); }
-                            else { return; }
+                                == DialogResult.Yes) { this.Close(); return; }
+                            else { this.Show(); return; }
                         }
                     }
                     //Select Sheet
@@ -300,6 +336,13 @@ namespace SaveMultiple
             Settings.Default.title = tbFT.Text;
             Settings.Default.dir = dirPath;
             Settings.Default.Save();
+
+            //End Message
+            if (MessageBox.Show("Multiple saves completed.\nDo you want to open the destination folder?\nDir>" + dirPath,
+                "SUCCESS",MessageBoxButtons.YesNo,MessageBoxIcon.Information) == DialogResult.Yes)
+            {
+                System.Diagnostics.Process.Start(dirPath);
+            }
             this.Close();
         }
 
@@ -316,9 +359,9 @@ namespace SaveMultiple
             if (cbSNP.Checked)
             {
                 if(clbPT.CheckedItems.Count == 0) { btSAVE.Enabled = false; }
-                clbPT.Enabled = true;
+                gbSelPort.Enabled = true;
             }
-            else { clbPT.Enabled = false; }
+            else { gbSelPort.Enabled = false; }
         }
 
         private void cbTRACE_CheckedChanged(object sender, EventArgs e)
