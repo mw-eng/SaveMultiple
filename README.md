@@ -2,7 +2,7 @@
 Macro to automatically save multiple channels, screens, traces, SnP.
 ## Requirements / Supported Platforms
 * .NET Framework 4.0 or later.
-* Windows 7 or later.
+* VNA A.17.20.09 (64 bit)
 
 ## Version Log
 ### 1.0.0.0 - 2024/03/02
