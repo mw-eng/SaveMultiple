@@ -13,14 +13,11 @@ or
 <img src="https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroRegistration_1.png?raw=true" width="250px">|Select *Macro* button (I)<br>Select *Macro Setup...* button (II)
 ---|:--
 <img src="https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroRegistration_2.png?raw=true" width="450px">|For the *Macro Title:* , choose an empty title or a changeable title (III)<br>Select *Edit...* button.(IV)
+<img src="https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroRegistration_3.png?raw=true" width="450px">|xx
+<img src="https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroRegistration_4.png?raw=true" width="450px">|xx
 
-
-
-![MacroRegistration_3](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroRegistration_3.png?raw=true)
-![MacroRegistration_4](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroRegistration_4.png?raw=true)
-![MacroUse_1](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroUse_1.png?raw=true)
-
-
-
-![MacroUse_2](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroUse_2.png?raw=true)
-![MacroUse_3](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroUse_3.png?raw=true)
+## How to use macro
+<img src="https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroUse_1.png?raw=true" width="250px">|xx
+---|:--
+![MacroUse_2](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroUse_2.png?raw=true)|xx
+![MacroUse_3](https://github.com/mw-eng/SaveMultiple/blob/master/assets/MacroUse_3.png?raw=true)|xx
