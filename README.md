@@ -7,6 +7,8 @@ Macro to automatically save multiple channels, screens, traces, SnP.
 ## Version Log
 ### 1.0.0.0 - 2024/03/02
 * First release.
+### 1.0.0.1 - 2024/03/02
+* Modifying assembly information
 
 ## How to use
 ### Installing / Uninstalling Macro
