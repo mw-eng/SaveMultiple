@@ -9,6 +9,10 @@ Macro to automatically save multiple channels, screens, traces, SnP.
 * First release.
 ### 1.0.0.1 - 2024/03/02
 * Modifying assembly information
+### 1.0.1.0 - 2024/03/03
+* Change the target flamework. (*.NET Framework 3.5*)
+* Added saving of selected channel and test port settings.
+* If the connection failed, a process to terminate the program has been added.
 
 ## How to use
 ### Installing / Uninstalling Macro
