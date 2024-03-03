@@ -25,28 +25,40 @@ namespace SaveMultiple
             Settings.Default.Reset();
 #endif
             this.Text += " Ver," + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).ProductVersion;
-            pna = new agPNA835x();
-
+            try { pna = new agPNA835x(); }
+            catch
+            {
+                MessageBox.Show("Connection failed program aborted.", "SaveMutiple ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                gbCh.Enabled = false;
+                gbConf.Enabled = false;
+                gbSaveTarg.Enabled = false;
+                btSAVE.Enabled = false;
+                tbFT.Enabled = false;
+                label1.Enabled = false;
+                return;
+            }
             foreach (uint i in pna.getChannelCatalog())
             {
                 ddlCH.Items.Add(i.ToString());
             }
             ddlCH.SelectedIndex = 0;
-            foreach(uint i in pna.getPortCatalog())
+            foreach (uint i in pna.getPortCatalog())
             {
                 clbPT.Items.Add("Port" + i.ToString());
             }
-            for(int i=0;i<clbPT.Items.Count; i++) { clbPT.SetItemChecked(i, true); }
+            string[] ports = Settings.Default.tp.Split(',');
+            for (int i=0;i<clbPT.Items.Count; i++) { clbPT.SetItemChecked(i, true); }
 
             //Read Settings
             if (Settings.Default.ch) { rbALL.Checked = true; ddlCH.Enabled = false; }
+
             else { rbSELECT.Checked = false; ddlCH.Enabled = true; }
             if (Settings.Default.img) { cbIMG.Checked = true; } else { cbIMG.Checked = false; }
             if (Settings.Default.snp) { cbSNP.Checked = true; } else { cbSNP.Checked = false; }
             if (Settings.Default.trace) { cbTRACE.Checked = true; } else { cbTRACE.Checked = false; }
             if (Settings.Default.sing) { cbSING.Checked = true; } else { cbSING.Checked = false; }
             if (Settings.Default.title != "") { tbFT.Text = Settings.Default.title; } else { tbFT.Text = "multipleDAT"; }
-
+            
         }
 
         private void rbALL_CheckedChanged(object sender, EventArgs e)

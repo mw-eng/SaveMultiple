@@ -2,8 +2,8 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="SaveMultiple.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ch" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="ch" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="img" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -22,6 +22,9 @@
     </Setting>
     <Setting Name="title" Type="System.String" Scope="User">
       <Value Profile="(Default)">dat</Value>
+    </Setting>
+    <Setting Name="tp" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1</Value>
     </Setting>
   </Settings>
 </SettingsFile>
