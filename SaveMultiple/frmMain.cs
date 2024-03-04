@@ -46,13 +46,41 @@ namespace SaveMultiple
             {
                 clbPT.Items.Add("Port" + i.ToString());
             }
-            string[] ports = Settings.Default.tp.Split(',');
-            for (int i=0;i<clbPT.Items.Count; i++) { clbPT.SetItemChecked(i, true); }
 
             //Read Settings
-            if (Settings.Default.ch) { rbALL.Checked = true; ddlCH.Enabled = false; }
-
-            else { rbSELECT.Checked = false; ddlCH.Enabled = true; }
+            string[] ports = Settings.Default.tp.Split(',');
+            if (!string.IsNullOrEmpty(ports[0]))
+            {
+                for (int i = 0; i < clbPT.Items.Count; i++)
+                {
+                    foreach(string strBf in ports)
+                    {
+                        if(strBf == clbPT.Items[i].ToString())
+                        {
+                            clbPT.SetItemChecked(i, true);
+                        }
+                    }
+                }
+            }
+            string[] channels = Settings.Default.ch.Split(',');
+            if (string.IsNullOrEmpty(channels[0]))
+            {
+                rbALL.Checked = true; ddlCH.Enabled = false;
+            }
+            else
+            {
+                rbSELECT.Checked = false; ddlCH.Enabled = true;
+                for (int i = 0; i < ddlCH.Items.Count; i++)
+                {
+                    foreach (string strBf in channels)
+                    {
+                        if (strBf == ddlCH.Items[i].ToString())
+                        {
+                            ddlCH.SelectedIndex = i;
+                        }
+                    }
+                }
+            }
             if (Settings.Default.img) { cbIMG.Checked = true; } else { cbIMG.Checked = false; }
             if (Settings.Default.snp) { cbSNP.Checked = true; } else { cbSNP.Checked = false; }
             if (Settings.Default.trace) { cbTRACE.Checked = true; } else { cbTRACE.Checked = false; }
@@ -89,9 +117,9 @@ namespace SaveMultiple
             string message;
 
             ports = new uint[clbPT.CheckedItems.Count];
-            for(int i = 0; i < clbPT.CheckedItems.Count; i++)
+            for (int i = 0; i < clbPT.CheckedItems.Count; i++)
             {
-                ports[i] = uint.Parse(clbPT.CheckedItems[i].ToString().Replace("Port",""));
+                ports[i] = uint.Parse(clbPT.CheckedItems[i].ToString().Replace("Port", ""));
             }
             //Select Folder Dialog
             FolderBrowserDialog fbd = new FolderBrowserDialog();
@@ -114,14 +142,14 @@ namespace SaveMultiple
             //File Check
             if (cbIMG.Checked)
             {
-                foreach(uint i in sheets)
+                foreach (uint i in sheets)
                 {
                     if (System.IO.File.Exists(dirPath + "\\" + tbFT.Text + "_Sheet" + i.ToString() + ".png")) { fileFLG = true; }
                 }
             }
             if (cbSNP.Checked)
             {
-                foreach(uint ch in channels)
+                foreach (uint ch in channels)
                 {
                     if (System.IO.File.Exists(dirPath + "\\" + tbFT.Text + "_CH" + ch.ToString() + ".s" + ports.Length.ToString() + "p")) { fileFLG = true; }
                 }
@@ -166,7 +194,7 @@ namespace SaveMultiple
                                     pna.SettriggerMode(channels[i], trigMODE[i]);
                                 }
                             }
-                            if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR", 
+                            if (MessageBox.Show(message + "\n\nDo you want to end the process?", "ERROR",
                                 MessageBoxButtons.YesNo, MessageBoxIcon.Error)
                                 == DialogResult.Yes) { this.Close(); return; }
                             else { this.Show(); return; }
@@ -213,7 +241,7 @@ namespace SaveMultiple
                             else { this.Show(); return; }
                         }
                     }
-                    if (!pna.saveSNP(ch, filePath,ports, out message))
+                    if (!pna.saveSNP(ch, filePath, ports, out message))
                     {
                         if (cbSING.Checked)
                         {
@@ -260,9 +288,9 @@ namespace SaveMultiple
                     foreach (uint win in pna.getWindowCatalog(sh))
                     {
                         List<TraceDAT> trace = new List<TraceDAT>();
-                        foreach(uint tra in pna.getTraceCatalog(win))
+                        foreach (uint tra in pna.getTraceCatalog(win))
                         {
-                            pna.selectTrace(win,tra);
+                            pna.selectTrace(win, tra);
                             uint ch = pna.getSelectChannel();
                             uint num = pna.getSelectMeasurementNumber();
                             string x = pna.getSCPIcommand("CALC" + ch.ToString() + ":MEAS" + num.ToString() + ":X:AXIS:UNIT?");
@@ -278,10 +306,10 @@ namespace SaveMultiple
                             string[] valy = pna.getSCPIcommand("CALC" + ch.ToString() + ":MEAS" + num.ToString() + ":Y?").Trim().Split(',');
                             trace.Add(new TraceDAT("CH" + ch.ToString(), x, y, valx, valy));
                         }
-                        dat.Add(new ChartDAT("Win" + win.ToString(),trace.ToArray()));
+                        dat.Add(new ChartDAT("Win" + win.ToString(), trace.ToArray()));
                     }
                     //Write CSV Data
-                    using(StreamWriter sw = new StreamWriter(filePath,false,Encoding.UTF8))
+                    using (StreamWriter sw = new StreamWriter(filePath, false, Encoding.UTF8))
                     {
                         System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
@@ -292,14 +320,14 @@ namespace SaveMultiple
                         string strBF2 = "";
                         string strBF3 = "";
                         int cnt = 0;
-                        foreach(ChartDAT chart in dat)
+                        foreach (ChartDAT chart in dat)
                         {
                             strBF1 += chart.WindowNumber + ",,";
                             for (int i = 0; i < chart.Trace.Length - 1; i++)
                             {
                                 strBF1 += "," + ",";
                             }
-                            foreach(TraceDAT trace in chart.Trace)
+                            foreach (TraceDAT trace in chart.Trace)
                             {
                                 strBF2 += trace.ChannelNumber + ",,";
                                 strBF3 += trace.AxisX + "," + trace.AxisY + ",";
@@ -335,23 +363,29 @@ namespace SaveMultiple
             //End processing
             if (cbSING.Checked)
             {
-                for(int i = 0; i < channels.Length; i++)
+                for (int i = 0; i < channels.Length; i++)
                 {
                     pna.SettriggerMode(channels[i], trigMODE[i]);
                 }
             }
-            Settings.Default.ch = rbALL.Checked;
+            string strPorts = "";
+            foreach(uint uintBF in ports)
+            {
+                strPorts += ports.ToString() + ",";
+            }
+            //Settings.Default.ch = rbALL.Checked;
+            if (rbALL.Checked) { Settings.Default.ch = ""; }
             Settings.Default.img = cbIMG.Checked;
             Settings.Default.snp = cbSNP.Checked;
             Settings.Default.trace = cbTRACE.Checked;
             Settings.Default.sing = cbSING.Checked;
             Settings.Default.title = tbFT.Text;
             Settings.Default.dir = dirPath;
+            Settings.Default.tp = strPorts.Trim(',');
             Settings.Default.Save();
-
             //End Message
             if (MessageBox.Show("Multiple saves completed.\nDo you want to open the destination folder?\nDir>" + dirPath,
-                "SUCCESS",MessageBoxButtons.YesNo,MessageBoxIcon.Information) == DialogResult.Yes)
+                "SUCCESS", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
             {
                 System.Diagnostics.Process.Start(dirPath);
             }
