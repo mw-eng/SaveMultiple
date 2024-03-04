@@ -22,7 +22,7 @@ namespace SaveMultiple
         {
 
 #if DEBUG
-            Settings.Default.Reset();
+            //Settings.Default.Reset();
 #endif
             this.Text += " Ver," + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).ProductVersion;
             try { pna = new agPNA835x(); }
@@ -53,31 +53,25 @@ namespace SaveMultiple
             {
                 for (int i = 0; i < clbPT.Items.Count; i++)
                 {
-                    foreach(string strBf in ports)
+                    foreach (string strBf in ports)
                     {
-                        if(strBf == clbPT.Items[i].ToString())
+                        if ("Port" + strBf == clbPT.Items[i].ToString())
                         {
                             clbPT.SetItemChecked(i, true);
                         }
                     }
                 }
             }
-            string[] channels = Settings.Default.ch.Split(',');
-            if (string.IsNullOrEmpty(channels[0]))
+            rbALL.Checked = true; ddlCH.Enabled = false;
+            if (Settings.Default.ch != 0)
             {
-                rbALL.Checked = true; ddlCH.Enabled = false;
-            }
-            else
-            {
-                rbSELECT.Checked = false; ddlCH.Enabled = true;
                 for (int i = 0; i < ddlCH.Items.Count; i++)
                 {
-                    foreach (string strBf in channels)
+                    if (uint.Parse(ddlCH.Items[i].ToString()) == Settings.Default.ch)
                     {
-                        if (strBf == ddlCH.Items[i].ToString())
-                        {
-                            ddlCH.SelectedIndex = i;
-                        }
+                        ddlCH.SelectedIndex = i;
+                        rbSELECT.Checked = true; ddlCH.Enabled = true;
+                        break;
                     }
                 }
             }
@@ -86,7 +80,6 @@ namespace SaveMultiple
             if (Settings.Default.trace) { cbTRACE.Checked = true; } else { cbTRACE.Checked = false; }
             if (Settings.Default.sing) { cbSING.Checked = true; } else { cbSING.Checked = false; }
             if (Settings.Default.title != "") { tbFT.Text = Settings.Default.title; } else { tbFT.Text = "multipleDAT"; }
-            
         }
 
         private void rbALL_CheckedChanged(object sender, EventArgs e)
@@ -361,26 +354,21 @@ namespace SaveMultiple
 
 
             //End processing
-            if (cbSING.Checked)
-            {
-                for (int i = 0; i < channels.Length; i++)
-                {
-                    pna.SettriggerMode(channels[i], trigMODE[i]);
-                }
-            }
-            string strPorts = "";
-            foreach(uint uintBF in ports)
-            {
-                strPorts += ports.ToString() + ",";
-            }
             //Settings.Default.ch = rbALL.Checked;
-            if (rbALL.Checked) { Settings.Default.ch = ""; }
+            //if (rbALL.Checked) { Settings.Default.ch = ""; }
+            if (rbALL.Checked) { Settings.Default.ch = 0; }
+            else { Settings.Default.ch = uint.Parse(ddlCH.SelectedItem.ToString()); }
             Settings.Default.img = cbIMG.Checked;
             Settings.Default.snp = cbSNP.Checked;
             Settings.Default.trace = cbTRACE.Checked;
             Settings.Default.sing = cbSING.Checked;
             Settings.Default.title = tbFT.Text;
             Settings.Default.dir = dirPath;
+            string strPorts = "";
+            foreach (uint uintBF in ports)
+            {
+                strPorts += uintBF.ToString() + ",";
+            }
             Settings.Default.tp = strPorts.Trim(',');
             Settings.Default.Save();
             //End Message
@@ -404,7 +392,7 @@ namespace SaveMultiple
             btSAVE.Enabled = enabSaveButton();
             if (cbSNP.Checked)
             {
-                if(clbPT.CheckedItems.Count == 0) { btSAVE.Enabled = false; }
+                if (clbPT.CheckedItems.Count == 0) { btSAVE.Enabled = false; }
                 gbSelPort.Enabled = true;
             }
             else { gbSelPort.Enabled = false; }
@@ -455,7 +443,7 @@ namespace SaveMultiple
             public string WindowNumber { get; set; }
             public TraceDAT[] Trace { get; set; }
 
-            public ChartDAT(string winNum, TraceDAT[] trace) { WindowNumber = winNum;Trace = trace; }
+            public ChartDAT(string winNum, TraceDAT[] trace) { WindowNumber = winNum; Trace = trace; }
         }
 
         private struct TraceDAT
@@ -464,7 +452,7 @@ namespace SaveMultiple
             public string AxisX { get; set; }
             public string AxisY { get; set; }
             public string[] ValueX { get; set; }
-            public string[] ValueY { get; set;}
+            public string[] ValueY { get; set; }
             public TraceDAT(string ch, string x, string y, string[] val_x, string[] val_y)
             {
                 ChannelNumber = ch; AxisX = x; AxisY = y; ValueX = val_x; ValueY = val_y;
