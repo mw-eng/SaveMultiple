@@ -22,7 +22,7 @@ namespace SaveMultiple
         {
 
 #if DEBUG
-            //Settings.Default.Reset();
+            Settings.Default.Reset();
 #endif
             this.Text += " Ver," + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).ProductVersion;
             try { pna = new agPNA835x(); }
