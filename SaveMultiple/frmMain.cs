@@ -354,8 +354,14 @@ namespace SaveMultiple
 
 
             //End processing
-            //Settings.Default.ch = rbALL.Checked;
-            //if (rbALL.Checked) { Settings.Default.ch = ""; }
+            if (cbSING.Checked)
+            {
+                for (int i = 0; i < channels.Length; i++)
+                {
+                    pna.SettriggerMode(channels[i], trigMODE[i]);
+                }
+            }
+
             if (rbALL.Checked) { Settings.Default.ch = 0; }
             else { Settings.Default.ch = uint.Parse(ddlCH.SelectedItem.ToString()); }
             Settings.Default.img = cbIMG.Checked;
