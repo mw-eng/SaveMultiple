@@ -352,7 +352,6 @@ namespace SaveMultiple
                 }
             }
 
-
             //End processing
             if (cbSING.Checked)
             {
